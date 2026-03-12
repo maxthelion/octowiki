@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from "fs";
 import { join } from "path";
 import type { Plan } from "../../types";
 import { sseEmitter } from "../sse";
+import { executePlan } from "../../agents/executor";
 
 export function inboxRouter(ctx: AppContext): Hono {
   const router = new Hono();
@@ -32,6 +33,11 @@ export function inboxRouter(ctx: AppContext): Hono {
     writeFileSync(planPath, JSON.stringify(plan, null, 2));
 
     sseEmitter.emit({ type: "plan-status-changed", planId });
+
+    // Run execution agent in background
+    executePlan(plan, ctx.wikiDir).catch((err) => {
+      console.error(`Execution agent failed for ${planId}:`, err);
+    });
 
     return c.json({ status: "approved" });
   });
