@@ -1,9 +1,13 @@
 import { Hono } from "hono";
 import type { AppContext } from "../app";
 import { readPage } from "../../wiki/pages";
+import { writePage } from "../../wiki/pages";
+import { parseFrontmatter } from "../../wiki/frontmatter";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { sseEmitter } from "../sse";
+import { chatWithPage } from "../../agents/haiku";
+import { withLock } from "../../wiki/lock";
 import type { PageMeta, ChatExchange } from "../../types";
 
 export function chatRouter(ctx: AppContext): Hono {
@@ -25,24 +29,48 @@ export function chatRouter(ctx: AppContext): Hono {
     if (existsSync(metaPath)) {
       meta = JSON.parse(readFileSync(metaPath, "utf-8"));
     }
+    const recentHistory = meta.history.slice(-10);
 
-    // Stub response — real agent wired in Task 10
-    const exchange: ChatExchange = {
-      timestamp: new Date().toISOString(),
-      role: "agent",
-      message: "Chat agent not yet connected.",
-    };
+    const lockPath = join(ctx.wikiDir, ".meta/agent-writing.lock");
 
-    meta.history.push(
-      { timestamp: new Date().toISOString(), role: "user", message: body.message },
-      exchange
-    );
-    mkdirSync(metaPagesDir, { recursive: true });
-    writeFileSync(metaPath, JSON.stringify(meta, null, 2));
+    try {
+      const result = await withLock(lockPath, async () => {
+        const { updatedContent, agentMessage } = await chatWithPage({
+          page,
+          message: body.message,
+          history: recentHistory.map((h) => ({ role: h.role, message: h.message })),
+        });
 
-    sseEmitter.emit({ type: "page-changed", slug });
+        // Write updated page with agent attribution
+        const rawPage = readFileSync(join(pagesDir, `${slug}.md`), "utf-8");
+        const { data } = parseFrontmatter(rawPage);
+        writePage(pagesDir, slug, { ...data, "last-modified-by": "agent" }, updatedContent);
 
-    return c.json({ exchange });
+        return { updatedContent, agentMessage };
+      });
+
+      const exchange: ChatExchange = {
+        timestamp: new Date().toISOString(),
+        role: "agent",
+        message: result.agentMessage,
+        pageDiff: result.updatedContent,
+      };
+
+      // Append to history
+      meta.history.push(
+        { timestamp: new Date().toISOString(), role: "user", message: body.message },
+        exchange
+      );
+      mkdirSync(metaPagesDir, { recursive: true });
+      writeFileSync(metaPath, JSON.stringify(meta, null, 2));
+
+      // Push SSE directly (no debounce for chat)
+      sseEmitter.emit({ type: "page-changed", slug });
+
+      return c.json({ exchange });
+    } catch (err) {
+      return c.json({ error: err instanceof Error ? err.message : "Chat failed" }, 500);
+    }
   });
 
   return router;
