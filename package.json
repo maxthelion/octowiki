@@ -9,6 +9,7 @@
     "build:web": "cd web && vite build --emptyOutDir",
     "build:static": "bun run build:web && bun run src/build-static.ts",
     "bootstrap": "bun run src/bootstrap.ts",
+    "discover": "bun run src/batch-import/discover.ts",
     "test": "bun test"
   },
   "devDependencies": {
