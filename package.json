@@ -1,0 +1,17 @@
+{
+  "name": "octowiki",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "gray-matter": "^4.0.3",
+    "hono": "^4.12.7"
+  }
+}
