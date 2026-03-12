@@ -1,6 +1,6 @@
 ---
 title: "Implementation Plan"
-category: "guide"
+category: "meta"
 tags: [implementation, tasks, bun, typescript, hono, react, testing]
 summary: "Step-by-step chunked implementation plan for building OctoWiki, organized into tasks with TDD workflow and checkpoint commits."
 last-modified-by: agent

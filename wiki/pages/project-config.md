@@ -1,6 +1,6 @@
 ---
 title: "Project Configuration (CLAUDE.md)"
-category: "reference"
+category: "meta"
 tags: [bun, configuration, conventions, testing, frontend, apis]
 summary: "Bun-specific conventions and API preferences for the OctoWiki project, derived from CLAUDE.md."
 last-modified-by: agent

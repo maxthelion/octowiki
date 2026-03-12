@@ -1,6 +1,6 @@
 ---
 title: "OctoWiki Overview"
-category: "overview"
+category: "architecture"
 tags: [getting-started, setup, configuration, usage]
 summary: "Project overview, prerequisites, quick start guide, and usage instructions for OctoWiki."
 last-modified-by: agent

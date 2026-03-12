@@ -1,6 +1,6 @@
 ---
 title: "Wiki Agent System Specification"
-category: "spec"
+category: "architecture"
 tags: [wiki, agents, architecture, reactive-pipeline, wikilinks, search, bootstrapping]
 summary: "The foundational spec (v0.1) defining OctoWiki's core concepts: wiki-as-source-of-truth, chat-in-page, reactive agent pipeline, and codebase-as-derived-output."
 last-modified-by: agent

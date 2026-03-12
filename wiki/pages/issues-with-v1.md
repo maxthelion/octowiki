@@ -1,6 +1,6 @@
 ---
 title: Issues with v1
-category: reference
+category: meta
 tags: [bugs, improvements, v1]
 summary: Known issues and areas for improvement in the v1 implementation.
 last-modified-by: user
