@@ -3,15 +3,31 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "dev:web": "vite --config web/vite.config.ts",
+    "build:web": "vite build --config web/vite.config.ts",
+    "test": "bun test"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/markdown-it": "^14.1.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "4",
+    "vite": "5"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
+    "@tanstack/react-query": "^5.90.21",
     "gray-matter": "^4.0.3",
-    "hono": "^4.12.7"
+    "hono": "^4.12.7",
+    "markdown-it": "^14.1.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1"
   }
 }
