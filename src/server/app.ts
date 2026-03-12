@@ -9,6 +9,8 @@ import { taxonomyRouter } from "./routes/taxonomy";
 import { chatRouter } from "./routes/chat";
 import { planRouter } from "./routes/plan";
 import type { SSEEvent } from "../types";
+import { existsSync } from "fs";
+import { join } from "path";
 
 export interface AppContext {
   wikiDir: string;
@@ -48,6 +50,21 @@ export function createApp(ctx: AppContext): Hono {
   app.route("/api", taxonomyRouter(ctx));
   app.route("/api", chatRouter(ctx));
   app.route("/api", planRouter(ctx));
+
+  // Serve built frontend in production
+  const distPath = join(import.meta.dir, "../../dist/web");
+  if (existsSync(distPath)) {
+    app.get("*", async (c) => {
+      const filePath = join(distPath, c.req.path);
+      if (existsSync(filePath) && !filePath.endsWith("/")) {
+        return new Response(Bun.file(filePath));
+      }
+      // SPA fallback
+      return new Response(Bun.file(join(distPath, "index.html")), {
+        headers: { "Content-Type": "text/html" },
+      });
+    });
+  }
 
   return app;
 }
