@@ -57,17 +57,18 @@ A fully populated wiki ready for use. Pages have real content, cross-references,
 The batch import system (`/octowiki:batch-import` skill) implements both stages using a map-reduce architecture:
 
 1. **Discover** — a Bun script (`src/batch-import/discover.ts`) finds markdown files and creates a manifest with git dates
-2. **Map** — Haiku subagents extract structured topic summaries from each file, checking for duplicates via qmd search
+2. **Map** — Haiku subagents receive the **full** [[category-taxonomy]] (including "Pages should contain" guidelines) and extract structured topic summaries from each file, checking for duplicates via qmd search
 3. **Group** — deterministic code merges extracts by topic, resolving category conflicts and filtering low-confidence results
-4. **Reduce** — Sonnet subagents synthesise grouped extracts into coherent wiki pages following [[content-guidelines]]
+4. **Reduce** — Sonnet subagents synthesise **every** group into coherent wiki pages following [[content-guidelines]], including single-extract groups that still need restructuring into proper wiki format
 5. **Create** — pages are written via the [[skills|add-page skill]] to a staging directory for preview before applying
 
-Everything stages in `/tmp/` — nothing touches the wiki until the user confirms.
+Everything stages in `/tmp/` during processing. On apply, the current `wiki/pages/` is backed up to `wiki/pages-pre-import/` and a new `wiki/pages/` is created containing both existing and new pages. This lets the user browse the complete wiki tree before committing — if the result isn't right, swap the backup back.
 
 Usage: `/octowiki:batch-import <repo-path> [--dry-run] [--force]`
 
 ## Related
 
-- [[wiki-agent-system-spec]] — Section 11 describes the bootstrapping plugin
-- [[design-spec]] — defers bootstrapping to a future version
+- [[skills]] — documents the batch-import skill in detail
+- [[category-taxonomy]] — categories used for classifying imported pages
+- [[content-guidelines]] — rules followed during synthesis
 - [[sidebar-tree-navigation]] — categories from the skeleton appear in the sidebar tree

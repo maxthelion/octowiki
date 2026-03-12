@@ -45,7 +45,7 @@ qmd embed --collection wiki/.index/qmd
 For each file in the manifest, dispatch a Haiku subagent (parallel, batches of 10).
 
 Before dispatching, for each file:
-1. Read `wiki/pages/category-taxonomy.md`
+1. Read `wiki/pages/category-taxonomy.md` — include the **full content** including "What belongs here" and "Pages should contain" sections for every category. Do not abbreviate or summarise the taxonomy — the subagent needs the full descriptions to make good category decisions.
 2. List existing wiki page slugs: `ls wiki/pages/`
 3. Run a qmd search for the file's title/first heading to check for existing coverage:
    `qmd search "<title>" --json --collection wiki/.index/qmd`
@@ -61,9 +61,9 @@ Before dispatching, for each file:
 > {content}
 > ```
 >
-> **Category taxonomy:**
+> **Category taxonomy (full — read the "Pages should contain" guidelines to choose the right category):**
 > ```
-> {category-taxonomy.md content}
+> {category-taxonomy.md content — FULL, not abbreviated}
 > ```
 >
 > **Existing wiki pages:** {comma-separated list of slugs}
@@ -125,7 +125,7 @@ For each group, dispatch a Sonnet subagent. Two prompt variants:
 
 **New page reduce prompt:**
 
-> You are synthesising multiple documentation extracts into a single, coherent wiki page.
+> You are writing a wiki page from documentation extracts. The page must be a well-structured, standalone document that a reader can understand without consulting the source material.
 >
 > **Target slug:** {slug}
 > **Target category:** {category}
@@ -149,14 +149,14 @@ For each group, dispatch a Sonnet subagent. Two prompt variants:
 > **Related existing wiki pages (for cross-referencing):**
 > {qmd search results}
 >
-> Merge these extracts into a single wiki page. Rules:
+> Write a complete wiki page from these extracts. Rules:
+> - **Structure the page properly** — use an Overview section, then topic-specific sections with headings, lists, tables, and code blocks as appropriate. The page should read as a coherent document, not a collection of notes.
 > - Follow the category's "pages should contain" guidelines
 > - Prefer content from more recent sources when there's conflict
 > - Use `[[wikilinks]]` to cross-reference related pages — don't duplicate content
 > - Select 2-5 tags from the available tags
 > - Write a one-sentence summary
-> - Structure with headings, lists, and sections
-> - Be concise — distill, don't copy
+> - Be concise — distill, don't copy — but do not be terse. The page should contain enough detail that a reader can understand the topic without needing to read the source material.
 >
 > Respond with JSON only:
 > ```json
@@ -213,6 +213,8 @@ For each group, dispatch a Sonnet subagent. Two prompt variants:
 
 Use model override `sonnet` for reduce subagents. On failure, retry up to 3 times. On permanent failure, add to skipped.
 
+**IMPORTANT: Every group must be dispatched to a Sonnet subagent — no exceptions, no shortcuts.** Do not auto-format single-extract groups by passing content through without Sonnet. A raw extract is not a wiki page. Sonnet's job is to restructure content into a well-written, standalone document with proper headings, sections, cross-references, and enough context that a reader can understand the topic. This applies equally whether the group has one extract or ten.
+
 Write results to `/tmp/.../reduce/<slug>.json`.
 
 ### Step 6: Create
@@ -260,6 +262,19 @@ Otherwise, ask: "Apply to wiki? (y/n)"
 ### Step 8: Apply
 
 On confirmation:
-1. Copy all files from `/tmp/.../wiki/pages/` to `wiki/pages/`
-2. Run `qmd update` + `qmd embed` to refresh the index
-3. Report: "Applied N new pages and M merges to wiki/pages/"
+1. Rename `wiki/pages/` to `wiki/pages-pre-import/` as a backup
+2. Create a new `wiki/pages/` directory
+3. Copy all existing pages from `wiki/pages-pre-import/` into the new `wiki/pages/`
+4. Copy all staged files from `/tmp/.../wiki/pages/` into `wiki/pages/` (new pages and merged pages overwrite their existing counterparts)
+5. Run `qmd update` + `qmd embed` to refresh the index (skip if qmd unavailable)
+6. Report: "Applied N new pages and M merges. Previous wiki backed up to wiki/pages-pre-import/. Browse the wiki to preview, then either commit or revert."
+
+**Reverting:** If the user wants to undo, swap back:
+```bash
+rm -rf wiki/pages && mv wiki/pages-pre-import wiki/pages
+```
+
+**Committing:** If the user is satisfied, clean up:
+```bash
+rm -rf wiki/pages-pre-import
+```

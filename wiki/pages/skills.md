@@ -1,8 +1,8 @@
 ---
 title: Skills
 category: functionality
-tags: [skills, automation, add-page, agents, cli]
-summary: Skills are slash-command shortcuts that automate common wiki tasks, starting with the add-page skill for creating structured wiki pages.
+tags: [skills, automation, add-page, batch-import, agents, cli]
+summary: Skills are slash-command shortcuts that automate common wiki tasks — add-page for creating individual pages and batch-import for bulk documentation import.
 last-modified-by: user
 ---
 
@@ -45,6 +45,50 @@ Skills are reusable slash commands that Claude Code can invoke to perform wiki t
 
 **Location:** `.claude/skills/octowiki-add-page/SKILL.md`
 
+### /octowiki:batch-import
+
+**Purpose:** Import and consolidate documentation from a repository into structured wiki pages.
+
+**Usage:**
+```
+/octowiki:batch-import <repo-path> [--dry-run] [--force]
+```
+
+**What it does:**
+
+Uses a map-reduce pipeline to transform markdown files into wiki pages:
+
+1. **Discover** — Bun script finds markdown files, creates a manifest with git dates and content
+2. **Index** — refreshes the qmd search index (if available)
+3. **Map** — Haiku subagents extract wiki-worthy topics from each file in parallel (batches of 10), checking for overlaps with existing pages
+4. **Group** — deterministic code merges extracts by topic slug, deduplicates tags, filters below a 0.3 confidence threshold
+5. **Reduce** — Sonnet subagents synthesise grouped extracts into coherent wiki pages following [[category-taxonomy]] guidelines and [[content-guidelines]]
+6. **Create** — writes pages to a staging directory with slug collision detection
+7. **Preview** — shows summary of new pages, merges, and skipped files
+8. **Apply** — on confirmation, stages the result as a previewable wiki tree
+
+**Staging approach:**
+
+Rather than writing directly to `wiki/pages/`, the apply step:
+
+1. Copies the current `wiki/pages/` to `wiki/pages-pre-import/` as a backup
+2. Creates a new `wiki/pages/` containing both existing and new/merged pages
+3. The user can browse the wiki to preview the full result
+4. If satisfied, delete `wiki/pages-pre-import/` and commit
+5. If reverting, swap `wiki/pages-pre-import/` back to `wiki/pages/`
+
+This allows the user to view the complete modified wiki tree before committing to the import.
+
+**Key design decisions:**
+
+- **Full taxonomy in map prompts** — Haiku subagents receive the complete [[category-taxonomy]] including "What belongs here" and "Pages should contain" sections, not just category names. Without the full descriptions, category assignments are unreliable.
+- **Every group through Sonnet** — even single-extract groups go through Sonnet synthesis. The value isn't just merging multiple sources — it's restructuring content into a proper wiki page with headings, sections, and cross-references. Passing single extracts through verbatim produces terse, unstructured pages.
+- Pages are attributed to `agent` since they are machine-generated from existing documentation.
+- The `--dry-run` flag stops after preview without staging anything.
+- The `--force` flag allows imports with >200 discovered files.
+
+**Location:** `.claude/skills/octowiki-batch-import/SKILL.md`
+
 ## Adding New Skills
 
 Skills follow the pattern:
@@ -56,7 +100,7 @@ Each skill has YAML frontmatter with `name` and `description` (triggering condit
 
 ## Related
 
-- [[category-taxonomy]] — the canonical category reference that the add-page skill reads
-- [[bootstrapping]] — batch page creation uses similar category-matching logic
+- [[category-taxonomy]] — the canonical category reference that both skills read
+- [[bootstrapping]] — describes the bootstrapping workflow that batch-import implements
 - [[agent-activity-indicator]] — skills trigger agent work that should be visible in the UI
 - [[content-guidelines]] — rules for avoiding duplication across wiki pages

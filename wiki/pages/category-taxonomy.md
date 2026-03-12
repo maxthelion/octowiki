@@ -112,6 +112,17 @@ This page is the canonical reference. It should be linked from the sidebar under
 - States (loading, error, empty, populated)
 - Relationship to API endpoints
 
+### algorithms
+
+**What belongs here:** Computational approaches, strategies, and heuristics used by the system — map-reduce patterns, scoring/ranking logic, conflict resolution strategies, deduplication approaches.
+
+**Pages should contain:**
+- What problem the algorithm solves
+- The approach taken (with pseudocode or step descriptions)
+- Inputs and outputs
+- Key parameters and thresholds
+- Trade-offs and alternatives considered
+
 ### functionality
 
 **What belongs here:** Features and capabilities — what the system can do, how features work end-to-end, user-facing behaviour.
