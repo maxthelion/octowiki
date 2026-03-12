@@ -54,11 +54,17 @@ A fully populated wiki ready for use. Pages have real content, cross-references,
 
 ## Current State
 
-The current bootstrapper (`src/bootstrap.ts`) combines both stages — it finds markdown files and generates full pages in one pass. It requires `ANTHROPIC_API_KEY` which makes it fragile. The [[issues-with-v1]] page tracks this.
+The batch import system (`/octowiki:batch-import` skill) implements both stages using a map-reduce architecture:
 
-A better approach would be:
-- Stage 1 as a local-only script (no API calls needed)
-- Stage 2 using Claude Code subagents (avoids needing the API key directly)
+1. **Discover** — a Bun script (`src/batch-import/discover.ts`) finds markdown files and creates a manifest with git dates
+2. **Map** — Haiku subagents extract structured topic summaries from each file, checking for duplicates via qmd search
+3. **Group** — deterministic code merges extracts by topic, resolving category conflicts and filtering low-confidence results
+4. **Reduce** — Sonnet subagents synthesise grouped extracts into coherent wiki pages following [[content-guidelines]]
+5. **Create** — pages are written via the [[skills|add-page skill]] to a staging directory for preview before applying
+
+Everything stages in `/tmp/` — nothing touches the wiki until the user confirms.
+
+Usage: `/octowiki:batch-import <repo-path> [--dry-run] [--force]`
 
 ## Related
 
