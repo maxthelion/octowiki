@@ -1,4 +1,10 @@
 
+## Wiki Pages
+
+When asked to create or add a wiki page, use the `/octowiki:add-page` skill. It reads the category taxonomy at `wiki/pages/category-taxonomy.md` and structures the page accordingly.
+
+## Bun
+
 Default to using Bun instead of Node.js.
 
 - Use `bun <file>` instead of `node <file>` or `ts-node <file>`

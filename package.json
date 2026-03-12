@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun run src/index.ts",
     "dev:web": "vite --config web/vite.config.ts",
-    "build:web": "vite build --config web/vite.config.ts",
+    "build:web": "cd web && vite build --emptyOutDir",
+    "build:static": "bun run build:web && bun run src/build-static.ts",
     "bootstrap": "bun run src/bootstrap.ts",
     "test": "bun test"
   },
