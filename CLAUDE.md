@@ -1,3 +1,12 @@
+## Wiki-First Workflow
+
+When the user asks for a change, **first consider whether the wiki needs updating**. The wiki is the source of truth; code is derived from it. Before implementing anything:
+
+1. Identify which wiki page(s) describe the thing being changed
+2. Update or create the wiki page(s) to reflect the desired state
+3. Only after the wiki change is confirmed, proceed to implementation
+
+This applies to new features, bug fixes, refactors — anything that changes how the system works. The wiki should describe what we want before we build it.
 
 ## Wiki Pages
 
