@@ -20,8 +20,11 @@ export function inboxRouter(ctx: AppContext): Hono {
     return c.json(plans);
   });
 
+  const SAFE_ID = /^plan-\d{4}-\d{2}-\d{2}-\d{3}$/;
+
   router.post("/inbox/:planId/approve", async (c) => {
     const planId = c.req.param("planId");
+    if (!SAFE_ID.test(planId)) return c.json({ error: "Invalid plan ID" }, 400);
     const planPath = join(plansDir, `${planId}.json`);
 
     if (!existsSync(planPath)) {
@@ -44,6 +47,7 @@ export function inboxRouter(ctx: AppContext): Hono {
 
   router.post("/inbox/:planId/reject", async (c) => {
     const planId = c.req.param("planId");
+    if (!SAFE_ID.test(planId)) return c.json({ error: "Invalid plan ID" }, 400);
     const planPath = join(plansDir, `${planId}.json`);
 
     if (!existsSync(planPath)) {

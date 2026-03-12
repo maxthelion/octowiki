@@ -10,7 +10,7 @@ import { chatRouter } from "./routes/chat";
 import { planRouter } from "./routes/plan";
 import type { SSEEvent } from "../types";
 import { existsSync } from "fs";
-import { join } from "path";
+import { join, resolve } from "path";
 
 export interface AppContext {
   wikiDir: string;
@@ -55,8 +55,8 @@ export function createApp(ctx: AppContext): Hono {
   const distPath = join(import.meta.dir, "../../dist/web");
   if (existsSync(distPath)) {
     app.get("*", async (c) => {
-      const filePath = join(distPath, c.req.path);
-      if (existsSync(filePath) && !filePath.endsWith("/")) {
+      const filePath = resolve(join(distPath, c.req.path));
+      if (filePath.startsWith(distPath) && existsSync(filePath) && !filePath.endsWith("/")) {
         return new Response(Bun.file(filePath));
       }
       // SPA fallback

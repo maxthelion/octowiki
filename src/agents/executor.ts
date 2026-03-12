@@ -15,14 +15,14 @@ function resolveTarget(target: string, wikiDir: string): string {
 
 export async function executePlan(plan: Plan, wikiDir: string): Promise<void> {
   const planPath = join(wikiDir, ".meta/plans", `${plan.id}.json`);
+  const branchName = `octowiki/${plan.id}`;
+
+  const branchResult = Bun.spawnSync(["git", "checkout", "-b", branchName]);
+  if (branchResult.exitCode !== 0) {
+    throw new Error(`Failed to create branch: ${branchResult.stderr.toString()}`);
+  }
 
   try {
-    const branchName = `octowiki/${plan.id}`;
-    const branchResult = Bun.spawnSync(["git", "checkout", "-b", branchName]);
-    if (branchResult.exitCode !== 0) {
-      throw new Error(`Failed to create branch: ${branchResult.stderr.toString()}`);
-    }
-
     for (const step of plan.steps) {
       const targetPath = resolveTarget(step.target, wikiDir);
 
@@ -51,22 +51,22 @@ export async function executePlan(plan: Plan, wikiDir: string): Promise<void> {
         writeFileSync(targetPath, parsed.content ?? "");
       }
 
-      Bun.spawnSync(["git", "add", "-A"]);
+      Bun.spawnSync(["git", "add", targetPath]);
       Bun.spawnSync(["git", "commit", "-m", parsed.commitMessage ?? step.description]);
     }
 
     plan.status = "done";
     writeFileSync(planPath, JSON.stringify(plan, null, 2));
-    Bun.spawnSync(["git", "checkout", "-"]);
     updateInboxStatus(wikiDir, plan.id, "done");
     sseEmitter.emit({ type: "plan-status-changed", planId: plan.id });
   } catch (error) {
     plan.status = "failed";
     plan.error = error instanceof Error ? error.message : String(error);
     writeFileSync(planPath, JSON.stringify(plan, null, 2));
-    Bun.spawnSync(["git", "checkout", "-"]);
     updateInboxStatus(wikiDir, plan.id, "failed", plan.error);
     sseEmitter.emit({ type: "plan-status-changed", planId: plan.id });
+  } finally {
+    Bun.spawnSync(["git", "checkout", "-"]);
   }
 }
 

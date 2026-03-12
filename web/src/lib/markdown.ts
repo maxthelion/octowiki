@@ -1,6 +1,15 @@
 import MarkdownIt from "markdown-it";
 
-const md = new MarkdownIt({ html: true, linkify: true });
+const md = new MarkdownIt({ html: false, linkify: true });
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 md.inline.ruler.push("wikilink", (state, silent) => {
   const src = state.src;
@@ -23,31 +32,32 @@ md.inline.ruler.push("wikilink", (state, silent) => {
 
 md.renderer.rules.wikilink = (tokens, idx) => {
   const inner = tokens[idx].content;
+  const safe = escapeHtml(inner);
 
   if (inner.startsWith("!!")) {
-    const target = inner.slice(2);
+    const target = escapeHtml(inner.slice(2));
     return `<div class="wiki-embed wiki-embed-full" data-target="${target}"><a href="/page/${target}">${target}</a> (full embed)</div>`;
   }
 
   if (inner.startsWith("!")) {
-    const target = inner.slice(1);
+    const target = escapeHtml(inner.slice(1));
     return `<div class="wiki-embed" data-target="${target}"><a href="/page/${target}">${target}</a></div>`;
   }
 
   if (inner.startsWith("src:")) {
     const rest = inner.slice(4);
     const [file, anchor] = rest.split("#");
-    return `<code class="wiki-src" data-file="${file}" data-anchor="${anchor ?? ""}">${file}${anchor ? `#${anchor}` : ""}</code>`;
+    return `<code class="wiki-src" data-file="${escapeHtml(file)}" data-anchor="${escapeHtml(anchor ?? "")}">${escapeHtml(file)}${anchor ? `#${escapeHtml(anchor)}` : ""}</code>`;
   }
 
   if (inner.startsWith("ref:")) {
     const rest = inner.slice(4);
     const [type, ...targetParts] = rest.split(":");
     const target = targetParts.join(":");
-    return `<span class="wiki-ref" data-type="${type}" data-target="${target}">${type}:${target}</span>`;
+    return `<span class="wiki-ref" data-type="${escapeHtml(type)}" data-target="${escapeHtml(target)}">${escapeHtml(type)}:${escapeHtml(target)}</span>`;
   }
 
-  return `<a href="/page/${inner}" class="wiki-link" data-target="${inner}">${inner}</a>`;
+  return `<a href="/page/${safe}" class="wiki-link" data-target="${safe}">${safe}</a>`;
 };
 
 export function renderMarkdown(content: string): string {

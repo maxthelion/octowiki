@@ -1,9 +1,14 @@
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, unlinkSync, openSync, closeSync } from "fs";
 
 export function acquireLock(lockPath: string): boolean {
-  if (isLocked(lockPath)) return false;
-  writeFileSync(lockPath, String(process.pid));
-  return true;
+  try {
+    const fd = openSync(lockPath, "wx");
+    writeFileSync(fd, String(process.pid));
+    closeSync(fd);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function releaseLock(lockPath: string): void {

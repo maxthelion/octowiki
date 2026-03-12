@@ -15,8 +15,11 @@ export function chatRouter(ctx: AppContext): Hono {
   const pagesDir = join(ctx.wikiDir, "pages");
   const metaPagesDir = join(ctx.wikiDir, ".meta/pages");
 
+  const SAFE_SLUG = /^[a-z0-9][a-z0-9_-]*$/;
+
   router.post("/chat/:page", async (c) => {
     const slug = c.req.param("page");
+    if (!SAFE_SLUG.test(slug)) return c.json({ error: "Invalid slug" }, 400);
     const page = readPage(pagesDir, slug);
     if (!page) return c.json({ error: "Page not found" }, 404);
 

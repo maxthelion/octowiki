@@ -3,6 +3,8 @@ import type { AppContext } from "../app";
 import { readPage, listPages, writePage } from "../../wiki/pages";
 import { join } from "path";
 
+const SAFE_SLUG = /^[a-z0-9][a-z0-9_-]*$/;
+
 export function pagesRouter(ctx: AppContext): Hono {
   const router = new Hono();
   const pagesDir = join(ctx.wikiDir, "pages");
@@ -15,6 +17,7 @@ export function pagesRouter(ctx: AppContext): Hono {
 
   router.get("/pages/:slug", (c) => {
     const slug = c.req.param("slug");
+    if (!SAFE_SLUG.test(slug)) return c.json({ error: "Invalid slug" }, 400);
     const page = readPage(pagesDir, slug);
     if (!page) return c.json({ error: "Page not found" }, 404);
     return c.json(page);
