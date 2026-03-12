@@ -12,6 +12,10 @@ This applies to new features, bug fixes, refactors — anything that changes how
 
 When asked to create or add a wiki page, use the `/octowiki:add-page` skill. It reads the category taxonomy at `wiki/pages/category-taxonomy.md` and structures the page accordingly.
 
+## Batch Import
+
+To import documentation from a repo into the wiki, use `/octowiki:batch-import`. It discovers markdown files, extracts topics with Haiku, groups and deduplicates them, synthesises pages with Sonnet, and stages everything in /tmp for preview before applying.
+
 ## Bun
 
 Default to using Bun instead of Node.js.
