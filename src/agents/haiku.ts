@@ -2,6 +2,8 @@ import { callAgent } from "./client";
 import type { WikiPage, ChangeSummary } from "../types";
 import { loadTaxonomy } from "../wiki/taxonomy";
 
+export { chatWithPage } from "./chat";
+
 const HAIKU_MODEL = "claude-haiku-4-5-20251001";
 
 export async function interpretChange(opts: {
@@ -63,52 +65,5 @@ ${opts.page.content}`,
     summary: changeSummary,
     suggestedTags: parsed.suggestedPageTags as string[] | undefined,
     isSignificant: (parsed.isSignificant as boolean) ?? false,
-  };
-}
-
-export async function chatWithPage(opts: {
-  page: WikiPage;
-  message: string;
-  history: { role: "user" | "agent"; message: string }[];
-  searchResults?: unknown[];
-}): Promise<{ updatedContent: string; agentMessage: string }> {
-  const response = await callAgent({
-    model: "claude-sonnet-4-6",
-    maxTokens: 8192,
-    system: `You are a wiki page editor. The user sends you a message about the current page. You respond by:
-1. Editing the page content to address the user's request
-2. Providing a brief message explaining what you changed
-
-Respond with JSON:
-- "updatedContent": the full updated page content (markdown, no frontmatter)
-- "agentMessage": a brief explanation of what you changed
-
-Preserve the existing structure and content. Only modify what the user asks for.`,
-    messages: [
-      ...opts.history.map((h) => ({
-        role: h.role === "user" ? ("user" as const) : ("assistant" as const),
-        content: h.message,
-      })),
-      {
-        role: "user" as const,
-        content: `Current page content:
-\`\`\`markdown
-${opts.page.content}
-\`\`\`
-
-User message: ${opts.message}`,
-      },
-    ],
-  });
-
-  let parsed: Record<string, string>;
-  try {
-    parsed = JSON.parse(response);
-  } catch {
-    return { updatedContent: opts.page.content, agentMessage: response };
-  }
-  return {
-    updatedContent: parsed.updatedContent ?? opts.page.content,
-    agentMessage: parsed.agentMessage ?? "Updated the page.",
   };
 }

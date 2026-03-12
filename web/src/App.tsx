@@ -10,11 +10,11 @@ export function App() {
   useSSE();
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
-      <aside style={{ width: 250, borderRight: "1px solid #e0e0e0", overflow: "auto" }}>
+    <div className="app-layout">
+      <aside className="app-sidebar">
         <PageList />
       </aside>
-      <main style={{ flex: 1, overflow: "auto", paddingBottom: 80 }}>
+      <main className="app-main">
         <Routes>
           <Route path="/" element={<Navigate to="/feed" replace />} />
           <Route path="/page/:slug" element={<PageView />} />

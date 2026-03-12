@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import type { SearchResult } from "../types";
 
 export function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") ?? "";
   const [input, setInput] = useState(query);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
   const doSearch = async (q: string) => {
@@ -14,6 +15,7 @@ export function Search() {
     setSearchParams({ q });
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error(res.statusText);
       setResults(await res.json());
     } catch {
       setResults([]);
@@ -22,26 +24,23 @@ export function Search() {
   };
 
   return (
-    <div style={{ padding: "24px 32px", maxWidth: 800 }}>
-      <h1 style={{ marginBottom: 16 }}>Search</h1>
-      <form
-        onSubmit={(e) => { e.preventDefault(); doSearch(input); }}
-        style={{ display: "flex", gap: 8, marginBottom: 24 }}
-      >
+    <div className="page-section">
+      <h1>Search</h1>
+      <form onSubmit={(e) => { e.preventDefault(); doSearch(input); }} className="search-form">
         <input
+          className="search-input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search wiki..."
-          style={{ flex: 1, padding: "8px 12px", border: "1px solid #ccc", borderRadius: 6, fontSize: 14 }}
         />
-        <button type="submit" style={{ padding: "8px 16px", cursor: "pointer" }}>Search</button>
+        <button type="submit" className="btn btn-primary">Search</button>
       </form>
       {loading && <p>Searching...</p>}
-      {results.length === 0 && query && !loading && <p style={{ color: "#666" }}>No results.</p>}
-      {results.map((r: any, i: number) => (
-        <div key={i} style={{ borderBottom: "1px solid #eee", paddingBlock: 12 }}>
-          <Link to={`/page/${r.slug ?? r.id ?? i}`} style={{ fontWeight: 500 }}>{r.title ?? r.slug ?? `Result ${i + 1}`}</Link>
-          {r.summary && <p style={{ fontSize: 14, color: "#555", marginTop: 4 }}>{r.summary}</p>}
+      {results.length === 0 && query && !loading && <p className="empty">No results.</p>}
+      {results.map((r, i) => (
+        <div key={i} className="search-result">
+          <Link to={`/page/${r.slug ?? r.id ?? i}`}>{r.title ?? r.slug ?? `Result ${i + 1}`}</Link>
+          {r.summary && <p>{r.summary}</p>}
         </div>
       ))}
     </div>

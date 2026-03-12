@@ -11,20 +11,24 @@ export interface DualDebouncerOpts {
 export function createDualDebouncer(opts: DualDebouncerOpts) {
   let fastTimer: ReturnType<typeof setTimeout> | null = null;
   let slowTimer: ReturnType<typeof setTimeout> | null = null;
-  let pendingFiles: Set<string> = new Set();
+  let fastPending: Set<string> = new Set();
+  let slowPending: Set<string> = new Set();
 
   function trigger(file: string) {
-    pendingFiles.add(file);
+    fastPending.add(file);
+    slowPending.add(file);
 
     if (fastTimer) clearTimeout(fastTimer);
     fastTimer = setTimeout(() => {
-      opts.onFast([...pendingFiles]);
+      const files = [...fastPending];
+      fastPending.clear();
+      opts.onFast(files);
     }, opts.fastDelayMs);
 
     if (slowTimer) clearTimeout(slowTimer);
     slowTimer = setTimeout(() => {
-      const files = [...pendingFiles];
-      pendingFiles.clear();
+      const files = [...slowPending];
+      slowPending.clear();
       opts.onSlow(files);
     }, opts.slowDelayMs);
   }

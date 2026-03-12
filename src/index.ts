@@ -56,11 +56,13 @@ async function main() {
   });
 
   // Graceful shutdown
-  process.on("SIGINT", () => {
+  const shutdown = () => {
     console.log("\nShutting down...");
     watcher.stop();
     process.exit(0);
-  });
+  };
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 main().catch((err) => {

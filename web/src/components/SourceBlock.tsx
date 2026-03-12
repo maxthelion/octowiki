@@ -1,37 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function SourceBlock({ file, anchor }: { file: string; anchor?: string }) {
   const [expanded, setExpanded] = useState(false);
+  const [content, setContent] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (!expanded || content !== null) return;
+    fetch(`/api/source?file=${encodeURIComponent(file)}${anchor ? `&anchor=${encodeURIComponent(anchor)}` : ""}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(r.statusText);
+        return r.text();
+      })
+      .then(setContent)
+      .catch(() => setError(true));
+  }, [expanded, file, anchor, content]);
 
   return (
-    <div
-      style={{
-        border: "1px solid #e0e0e0",
-        borderRadius: 6,
-        marginBlock: 8,
-        overflow: "hidden",
-      }}
-    >
-      <button
-        onClick={() => setExpanded(!expanded)}
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "8px 12px",
-          background: "#f6f8fa",
-          border: "none",
-          cursor: "pointer",
-          fontSize: 13,
-          fontFamily: "monospace",
-        }}
-      >
+    <div className="source-block">
+      <button className="source-header" onClick={() => setExpanded(!expanded)}>
         <span>{file}{anchor ? `#${anchor}` : ""}</span>
-        <span>{expanded ? "▼" : "▶"}</span>
+        <span>{expanded ? "\u25BC" : "\u25B6"}</span>
       </button>
       {expanded && (
-        <pre style={{ padding: 12, margin: 0, fontSize: 13, overflow: "auto", background: "#fafafa" }}>
-          <code>Source reference: {file}{anchor ? `#${anchor}` : ""}</code>
+        <pre className="source-body">
+          <code>
+            {content ?? (error ? `Could not load ${file}` : "Loading...")}
+          </code>
         </pre>
       )}
     </div>

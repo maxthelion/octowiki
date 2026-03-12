@@ -1,0 +1,304 @@
+/* Layout */
+.app-layout { display: flex; height: 100vh; }
+.app-sidebar { width: 250px; border-right: 1px solid #e0e0e0; overflow: auto; }
+.app-main { flex: 1; overflow: auto; padding-bottom: 80px; }
+
+/* Sidebar */
+.sidebar { padding: 16px; }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.sidebar-title { font-size: 16px; font-weight: 600; }
+.sidebar-add-btn { cursor: pointer; background: none; border: 1px solid #ccc; border-radius: 4px; width: 28px; height: 28px; font-size: 16px; }
+.sidebar-add-form { margin-bottom: 16px; }
+.sidebar-textarea { width: 100%; min-height: 60px; padding: 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
+.sidebar-submit { margin-top: 4px; cursor: pointer; }
+.sidebar-nav { display: flex; gap: 8px; margin-bottom: 12px; }
+.sidebar-nav a { font-size: 13px; color: #0066cc; text-decoration: none; }
+.sidebar-nav a:hover { text-decoration: underline; }
+/* Tree navigation */
+.tree { margin-top: 4px; }
+.tree-group { margin-bottom: 2px; }
+.tree-category {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tree-category:hover { color: #1a1a2e; }
+.tree-category-empty { cursor: default; color: #bbb; }
+.tree-category-empty:hover { color: #bbb; }
+.tree-arrow { width: 10px; font-size: 8px; flex-shrink: 0; text-align: center; }
+.tree-count { margin-left: auto; font-weight: 400; color: #aaa; font-size: 11px; }
+.tree-pages { list-style: none; padding-left: 14px; margin: 0 0 4px; }
+.tree-pages li { margin-bottom: 1px; }
+.page-link { display: block; padding: 4px 8px; border-radius: 4px; text-decoration: none; color: #333; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.page-link:hover { background: #f0f3f6; }
+.page-link.active { color: #fff; background: #0066cc; }
+
+/* Page view */
+.page-article { padding: 24px 32px; max-width: 800px; }
+.page-title { margin-bottom: 8px; font-size: 1.6em; font-weight: 600; color: #1a1a2e; }
+.page-meta { font-size: 13px; color: #666; margin-bottom: 24px; }
+.tag { margin-left: 8px; background: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+.loading { padding: 32px; color: #666; }
+
+/* Chat box */
+.chatbox { position: fixed; bottom: 0; left: 250px; right: 0; padding: 12px 32px; background: #fff; border-top: 1px solid #e0e0e0; display: flex; gap: 8px; }
+.chatbox input { flex: 1; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+.chatbox input:focus { outline: none; border-color: #0066cc; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+.btn-primary { background: #0066cc; color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #0052a3; }
+.btn-success { background: #28a745; color: #fff; }
+.btn-success:hover:not(:disabled) { background: #218838; }
+.btn-danger { background: #dc3545; color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #c82333; }
+.btn-sm { padding: 6px 14px; font-size: 13px; }
+
+/* Cards (feed items, inbox plans) */
+.card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.card:hover { border-color: #ccc; }
+.card-row { display: flex; gap: 8px; align-items: flex-start; }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.card-title { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+.card-text { margin: 4px 0; font-size: 14px; color: #444; }
+.card-meta { font-size: 12px; color: #888; }
+.card-meta .tag { margin-left: 0; margin-right: 6px; background: #f0f0f0; padding: 1px 4px; border-radius: 3px; }
+.card-actions { display: flex; gap: 8px; }
+
+/* Status badges */
+.status { font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+.status-done { background: #d4edda; color: #155724; }
+.status-failed, .status-rejected { background: #f8d7da; color: #721c24; }
+.status-approved { background: #cce5ff; color: #004085; }
+.status-pending { background: #fff3cd; color: #856404; }
+
+/* Page section */
+.page-section { padding: 24px 32px; max-width: 800px; }
+.page-section h1 { margin-bottom: 16px; font-size: 1.6em; font-weight: 600; color: #1a1a2e; }
+
+/* Search */
+.search-form { display: flex; gap: 8px; margin-bottom: 24px; }
+.search-input { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+.search-input:focus { outline: none; border-color: #0066cc; }
+.search-result { border-bottom: 1px solid #eee; padding-block: 12px; }
+.search-result a { font-weight: 500; color: #0066cc; text-decoration: none; }
+.search-result a:hover { text-decoration: underline; }
+.search-result p { font-size: 14px; color: #555; margin-top: 4px; }
+
+/* Source block */
+.source-block { border: 1px solid #e0e0e0; border-radius: 6px; margin-block: 8px; overflow: hidden; }
+.source-header { width: 100%; display: flex; justify-content: space-between; padding: 8px 12px; background: #f6f8fa; border: none; cursor: pointer; font-size: 13px; font-family: "SF Mono", "Fira Code", Menlo, monospace; }
+.source-header:hover { background: #eef1f5; }
+.source-body { padding: 12px; margin: 0; font-size: 13px; overflow: auto; background: #fafafa; }
+
+/* Hover summary tooltip */
+.hover-wrap { position: relative; display: inline; }
+.hover-tooltip { position: absolute; bottom: 100%; left: 0; background: #1a1a2e; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; max-width: 300px; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); pointer-events: none; }
+.hover-tooltip strong { color: #fff; }
+.hover-tooltip p { margin: 4px 0 0; opacity: 0.9; }
+
+/* Empty state */
+.empty { color: #666; }
+
+/* Plan steps */
+.plan-steps { font-size: 13px; padding-left: 20px; color: #555; margin-top: 8px; }
+.plan-steps code { font-size: 0.9em; }
+.plan-error { color: #dc3545; font-size: 13px; margin-top: 8px; }
+
+/* Affected pages links */
+.affected-pages { font-size: 12px; margin-top: 4px; }
+.affected-pages a { margin-right: 6px; color: #0066cc; text-decoration: none; }
+
+/* Wiki content typography and elements */
+
+.wiki-content {
+  line-height: 1.7;
+  color: #24292f;
+  font-size: 15px;
+}
+
+.wiki-content h1,
+.wiki-content h2,
+.wiki-content h3,
+.wiki-content h4 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #1a1a2e;
+}
+
+.wiki-content h1 { font-size: 1.6em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.3em; }
+.wiki-content h2 { font-size: 1.3em; border-bottom: 1px solid #eee; padding-bottom: 0.25em; }
+.wiki-content h3 { font-size: 1.1em; }
+.wiki-content h4 { font-size: 1em; color: #444; }
+
+.wiki-content p {
+  margin: 0.75em 0;
+}
+
+/* Lists */
+.wiki-content ul,
+.wiki-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.8em;
+}
+
+.wiki-content li {
+  margin: 0.25em 0;
+}
+
+.wiki-content li > ul,
+.wiki-content li > ol {
+  margin: 0.15em 0;
+}
+
+/* Inline code */
+.wiki-content code {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, monospace;
+  font-size: 0.88em;
+  background: #f0f3f6;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  color: #d63384;
+}
+
+/* Code blocks */
+.wiki-content pre {
+  margin: 1em 0;
+  padding: 14px 18px;
+  background: #f6f8fa;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.wiki-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: #24292f;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+/* Tables */
+.wiki-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.92em;
+}
+
+.wiki-content thead th {
+  background: #f6f8fa;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 2px solid #d0d7de;
+  padding: 8px 12px;
+}
+
+.wiki-content tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.wiki-content tbody tr:hover {
+  background: #f8f9fb;
+}
+
+/* Blockquotes */
+.wiki-content blockquote {
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid #0066cc;
+  background: #f8f9fb;
+  color: #444;
+}
+
+.wiki-content blockquote p {
+  margin: 0.25em 0;
+}
+
+/* Horizontal rules */
+.wiki-content hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 1.5em 0;
+}
+
+/* Links */
+.wiki-content a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.wiki-content a:hover {
+  text-decoration: underline;
+}
+
+/* Wikilinks */
+.wiki-content .wiki-link {
+  color: #0066cc;
+  text-decoration: none;
+  border-bottom: 1px dotted #0066cc;
+}
+
+.wiki-content .wiki-link:hover {
+  border-bottom-style: solid;
+}
+
+/* Embeds */
+.wiki-content .wiki-embed {
+  margin: 0.75em 0;
+  padding: 8px 12px;
+  background: #f8f9fb;
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #0066cc;
+  border-radius: 4px;
+}
+
+/* Source references */
+.wiki-content .wiki-src {
+  font-family: "SF Mono", "Fira Code", Menlo, monospace;
+  font-size: 0.85em;
+  background: #fff8e1;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  border: 1px solid #ffe082;
+  color: #6d4c00;
+}
+
+/* External refs */
+.wiki-content .wiki-ref {
+  font-size: 0.88em;
+  background: #e8f0fe;
+  padding: 0.15em 0.5em;
+  border-radius: 4px;
+  color: #1a56db;
+}
+
+/* Strong and emphasis */
+.wiki-content strong {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+/* Images */
+.wiki-content img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 1em 0;
+}

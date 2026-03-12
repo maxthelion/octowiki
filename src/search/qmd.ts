@@ -52,7 +52,8 @@ export async function search(
   try {
     const result = await runQmd(buildSearchCommand(collectionPath, query, mode));
     return JSON.parse(result);
-  } catch {
+  } catch (err) {
+    console.warn(`qmd search failed for "${query}":`, err instanceof Error ? err.message : err);
     return [];
   }
 }

@@ -9,7 +9,7 @@ import { taxonomyRouter } from "./routes/taxonomy";
 import { chatRouter } from "./routes/chat";
 import { planRouter } from "./routes/plan";
 import type { SSEEvent } from "../types";
-import { existsSync } from "fs";
+import { existsSync, statSync } from "fs";
 import { join, resolve } from "path";
 
 export interface AppContext {
@@ -56,7 +56,7 @@ export function createApp(ctx: AppContext): Hono {
   if (existsSync(distPath)) {
     app.get("*", async (c) => {
       const filePath = resolve(join(distPath, c.req.path));
-      if (filePath.startsWith(distPath) && existsSync(filePath) && !filePath.endsWith("/")) {
+      if (filePath.startsWith(distPath) && existsSync(filePath) && statSync(filePath).isFile()) {
         return new Response(Bun.file(filePath));
       }
       // SPA fallback

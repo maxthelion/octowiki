@@ -1,10 +1,4 @@
-export interface WikiLink {
-  raw: string;
-  type: "link" | "embed" | "full-embed" | "src" | "ref";
-  target: string;
-  anchor?: string;
-  refType?: "git" | "pr" | "doc" | "test";
-}
+import type { WikiLink } from "../types";
 
 const WIKILINK_PATTERN = /\[\[([^\]]+)\]\]/g;
 
