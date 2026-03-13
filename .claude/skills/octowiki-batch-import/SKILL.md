@@ -217,61 +217,28 @@ Use model override `sonnet` for reduce subagents. On failure, retry up to 3 time
 
 Write results to `/tmp/.../reduce/<slug>.json`.
 
-### Step 6: Create
+### Step 6: Apply
 
-For each reduce output:
+Run the apply script to construct pages from reduce outputs and stage them:
 
-**New pages:** Use the `/octowiki:add-page` skill logic — but write to `/tmp/.../wiki/pages/` instead of the real wiki. After writing, patch `last-modified-by` to `agent` in the frontmatter (add-page defaults to `user`).
-
-Check for slug collisions:
-- Against other staged pages in `/tmp/.../wiki/pages/`
-- Against existing pages in `wiki/pages/`
-- If collision, append a number (e.g. `auth-2`)
-
-**Merges:** Write the updated content to `/tmp/.../wiki/pages/<slug>.md`. Also generate a diff:
 ```bash
-diff wiki/pages/<slug>.md /tmp/.../wiki/pages/<slug>.md > /tmp/.../merges/<slug>.diff
+bun run apply /tmp/octowiki-import-XXXX/reduce
 ```
 
-### Step 7: Preview
+The script handles:
+- Reading all reduce output JSON files
+- Constructing frontmatter from JSON fields (title, category, tags, summary) — the `content` field from reduce outputs may contain duplicate frontmatter, which the script strips
+- YAML-safe quoting of values containing special characters (colons, etc.)
+- Slug collision detection (appends `-2`, `-3` etc.)
+- Backing up `wiki/pages/` to `wiki/pages-pre-import/`
+- Creating a new `wiki/pages/` with both existing and new/merged pages
+- Printing a summary of what was applied
 
-Output a summary:
+If `--dry-run` was passed, skip this step and tell the user the reduce outputs persist in `/tmp/` for browsing.
 
-```
-Batch import complete. Staged in /tmp/octowiki-import-XXXX/
-
-  New pages (N):
-    category/slug — summary
-    ...
-
-  Merged into existing (N):
-    slug — changelog line
-    ...
-
-  Skipped (N):
-    source — reason
-    ...
-
-  Preview: /tmp/octowiki-import-XXXX/wiki/pages/
-```
-
-If `--dry-run`: stop here and tell the user the temp dir persists for browsing.
-
-Otherwise, ask: "Apply to wiki? (y/n)"
-
-### Step 8: Apply
-
-On confirmation:
-1. Rename `wiki/pages/` to `wiki/pages-pre-import/` as a backup
-2. Create a new `wiki/pages/` directory
-3. Copy all existing pages from `wiki/pages-pre-import/` into the new `wiki/pages/`
-4. Copy all staged files from `/tmp/.../wiki/pages/` into `wiki/pages/` (new pages and merged pages overwrite their existing counterparts)
-5. Run `qmd update` + `qmd embed` to refresh the index (skip if qmd unavailable)
-6. Report: "Applied N new pages and M merges. Previous wiki backed up to wiki/pages-pre-import/. Browse the wiki to preview, then either commit or revert."
-
-**Reverting:** If the user wants to undo, swap back:
+**Reverting:** If the user wants to undo:
 ```bash
-rm -rf wiki/pages && mv wiki/pages-pre-import wiki/pages
+bun run apply --revert
 ```
 
 **Committing:** If the user is satisfied, clean up:

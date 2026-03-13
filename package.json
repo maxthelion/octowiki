@@ -10,6 +10,7 @@
     "build:static": "bun run build:web && bun run src/build-static.ts",
     "bootstrap": "bun run src/bootstrap.ts",
     "discover": "bun run src/batch-import/discover.ts",
+    "apply": "bun run src/batch-import/apply.ts",
     "test": "bun test"
   },
   "devDependencies": {
