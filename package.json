@@ -11,6 +11,9 @@
     "bootstrap": "bun run src/bootstrap.ts",
     "discover": "bun run src/batch-import/discover.ts",
     "apply": "bun run src/batch-import/apply.ts",
+    "extract-spec": "bun run src/invariants/extract-spec.ts",
+    "extract-evidence": "bun run src/invariants/extract-evidence.ts",
+    "assemble-invariants": "bun run src/invariants/assemble.ts",
     "test": "bun test"
   },
   "devDependencies": {

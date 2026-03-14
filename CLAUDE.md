@@ -16,6 +16,10 @@ When asked to create or add a wiki page, use the `/octowiki:add-page` skill. It 
 
 To import documentation from a repo into the wiki, use `/octowiki:batch-import`. It discovers markdown files, extracts topics with Haiku, groups and deduplicates them, synthesises pages with Sonnet, and stages everything in /tmp for preview before applying.
 
+## Invariants
+
+To extract and compare invariants between wiki documentation and code, use `/octowiki:invariants`. It runs a three-stage pipeline: spec extraction (from wiki pages), evidence extraction (from source code), and comparison to surface implementation gaps. Results are written to `wiki/invariants/`.
+
 ## Bun
 
 Default to using Bun instead of Node.js.
