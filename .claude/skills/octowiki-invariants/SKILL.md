@@ -24,7 +24,7 @@ Extract falsifiable statements from wiki documentation and code independently, t
 Prepare batches of wiki pages grouped by category:
 
 ```bash
-bun run extract-spec /tmp/invariants-staging
+bunx octowiki invariants --stage 1
 ```
 
 This creates batch JSON files in the staging directory. For each batch, dispatch a Sonnet subagent.
@@ -74,7 +74,7 @@ Write the deduplicated result to `wiki/invariants/tree.json`.
 Prepare evidence extraction inputs:
 
 ```bash
-bun run extract-evidence wiki/invariants/tree.json /tmp/invariants-staging
+bunx octowiki invariants --stage 2
 ```
 
 This reads `tree.json` and creates input files per invariant group, each containing the invariant descriptions plus the relevant source and test files. File scoping uses a directory mapping table in the script plus grep for key terms.
@@ -139,20 +139,13 @@ Merge all group results into `wiki/invariants/evidence.json`.
 
 ### Step 3: Comparison
 
-This stage is deterministic — no LLM call needed. Run the compare and assemble scripts:
+This stage is deterministic — no LLM call needed. Run the compare and assemble command:
 
-```typescript
-import { compareTreeAndEvidence } from "./src/invariants/compare";
-import { assembleInvariantPages } from "./src/invariants/assemble";
-
-const tree = JSON.parse(readFileSync("wiki/invariants/tree.json", "utf-8"));
-const evidence = JSON.parse(readFileSync("wiki/invariants/evidence.json", "utf-8"));
-
-const report = compareTreeAndEvidence(tree, evidence);
-assembleInvariantPages(report);
+```bash
+bunx octowiki invariants --stage 3
 ```
 
-Or run inline in the coordinator. The compare function merges tree and evidence into resolved invariants with statuses. The assemble function renders wiki pages to `wiki/invariants/`.
+This merges tree and evidence into resolved invariants with statuses and renders wiki pages to `wiki/invariants/`.
 
 ### Step 4: Report
 

@@ -24,7 +24,7 @@ Import and consolidate documentation from a repository into structured wiki page
 Run the discovery script to find all markdown files and create a manifest:
 
 ```bash
-bun run src/batch-import/discover.ts <repo-path>
+bunx octowiki import discover <repo-path>
 ```
 
 This creates `/tmp/octowiki-import-XXXX/manifest.json` with all discovered files, their git dates, and content. Read the manifest to get the file list and temp directory path.
@@ -106,18 +106,11 @@ Write each result to `/tmp/.../map/<filename>.json`.
 
 ### Step 4: Group
 
-Run the grouping script. Read all map output JSON files, read existing wiki page content for any pages flagged as merge targets, then call the grouping function:
+Run the grouping command. This reads map outputs from `<staging-dir>/map/*.json`, reads existing wiki pages, groups them, and writes `groups.json` to the staging dir:
 
-```typescript
-import { groupMapOutputs } from "./src/batch-import/group";
-
-// Read all map outputs from /tmp/.../map/*.json
-// Read existing page content for merge targets
-// Call groupMapOutputs(mapOutputs, existingPages)
-// Write result to /tmp/.../groups.json
+```bash
+bunx octowiki import group /tmp/octowiki-import-XXXX
 ```
-
-The coordinator should do this inline (it's deterministic code, not an LLM call). Write `groups.json` to the temp directory.
 
 ### Step 5: Reduce (Sonnet subagents)
 
@@ -222,7 +215,7 @@ Write results to `/tmp/.../reduce/<slug>.json`.
 Run the apply script to construct pages from reduce outputs and stage them:
 
 ```bash
-bun run apply /tmp/octowiki-import-XXXX/reduce
+bunx octowiki import apply /tmp/octowiki-import-XXXX
 ```
 
 The script handles:
@@ -238,7 +231,7 @@ If `--dry-run` was passed, skip this step and tell the user the reduce outputs p
 
 **Reverting:** If the user wants to undo:
 ```bash
-bun run apply --revert
+bunx octowiki import apply /tmp/octowiki-import-XXXX --revert
 ```
 
 **Committing:** If the user is satisfied, clean up:
