@@ -14,6 +14,7 @@ import { join, resolve } from "path";
 
 export interface AppContext {
   wikiDir: string;
+  distPath?: string;
 }
 
 export function createApp(ctx: AppContext): Hono {
@@ -52,7 +53,7 @@ export function createApp(ctx: AppContext): Hono {
   app.route("/api", planRouter(ctx));
 
   // Serve built frontend in production
-  const distPath = join(import.meta.dir, "../../dist/web");
+  const distPath = ctx.distPath ?? join(import.meta.dir, "../../dist/web");
   if (existsSync(distPath)) {
     app.get("*", async (c) => {
       const filePath = resolve(join(distPath, c.req.path));
