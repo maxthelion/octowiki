@@ -6,30 +6,35 @@ import { isQmdAvailable } from "./search/qmd";
 import { join } from "path";
 import { mkdirSync, existsSync, writeFileSync } from "fs";
 
-const WIKI_DIR = process.env.OCTOWIKI_DIR ?? join(process.cwd(), "wiki");
-const PORT = parseInt(process.env.PORT ?? "4567", 10);
+export interface ServerConfig {
+  wikiDir: string;
+  port: number;
+  distPath?: string;
+}
 
-async function main() {
+export async function startServer(config: ServerConfig) {
+  const { wikiDir, port, distPath } = config;
+
   console.log(`OctoWiki starting...`);
-  console.log(`Wiki directory: ${WIKI_DIR}`);
+  console.log(`Wiki directory: ${wikiDir}`);
 
   // Ensure directories exist
   for (const dir of ["pages", ".meta/pages", ".meta/plans", ".index", "meta"]) {
-    mkdirSync(join(WIKI_DIR, dir), { recursive: true });
+    mkdirSync(join(wikiDir, dir), { recursive: true });
   }
 
   // Initialize files if missing
-  const queuePath = join(WIKI_DIR, ".meta/queue.json");
+  const queuePath = join(wikiDir, ".meta/queue.json");
   if (!existsSync(queuePath)) {
     writeFileSync(queuePath, "[]");
   }
-  const backlinksPath = join(WIKI_DIR, ".meta/backlinks.json");
+  const backlinksPath = join(wikiDir, ".meta/backlinks.json");
   if (!existsSync(backlinksPath)) {
     writeFileSync(backlinksPath, "{}");
   }
 
   // Clean stale locks
-  cleanStaleLock(join(WIKI_DIR, ".meta/agent-writing.lock"));
+  cleanStaleLock(join(wikiDir, ".meta/agent-writing.lock"));
 
   // Check qmd availability
   const qmdOk = await isQmdAvailable();
@@ -40,18 +45,18 @@ async function main() {
 
   // Start file watcher
   const watcher = startWatcher({
-    wikiDir: WIKI_DIR,
+    wikiDir,
     onSSE: handleSSETrigger,
-    onHaiku: (files) => handleHaikuTrigger(files, WIKI_DIR),
+    onHaiku: (files) => handleHaikuTrigger(files, wikiDir),
   });
 
   // Start HTTP server
-  const app = createApp({ wikiDir: WIKI_DIR });
+  const app = createApp({ wikiDir, distPath });
 
-  console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(`Server listening on http://localhost:${port}`);
 
   Bun.serve({
-    port: PORT,
+    port,
     fetch: app.fetch,
   });
 
@@ -65,7 +70,11 @@ async function main() {
   process.on("SIGTERM", shutdown);
 }
 
-main().catch((err) => {
-  console.error("Failed to start OctoWiki:", err);
-  process.exit(1);
-});
+if (import.meta.main) {
+  const wikiDir = process.env.OCTOWIKI_DIR ?? join(process.cwd(), "wiki");
+  const port = parseInt(process.env.PORT ?? "4567", 10);
+  startServer({ wikiDir, port }).catch((err) => {
+    console.error("Failed to start OctoWiki:", err);
+    process.exit(1);
+  });
+}
