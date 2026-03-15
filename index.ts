@@ -1,1 +1,2 @@
-console.log("Hello via Bun!");
+export { startServer } from "./src/index";
+export type { ServerConfig } from "./src/index";

@@ -1,8 +1,17 @@
 {
   "name": "octowiki",
+  "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
-  "private": true,
+  "bin": {
+    "octowiki": "./cli.ts"
+  },
+  "files": [
+    "cli.ts",
+    "src/",
+    ".claude/skills/",
+    "dist/web/"
+  ],
   "scripts": {
     "dev": "bun run src/index.ts",
     "dev:web": "vite --config web/vite.config.ts",
