@@ -20,9 +20,6 @@ import type { NewPageReduceOutput, MergeReduceOutput } from "./types";
  *   --revert      Swap wiki/pages-pre-import back to wiki/pages
  */
 
-const WIKI_DIR = join(import.meta.dir, "../../wiki/pages");
-const BACKUP_DIR = join(import.meta.dir, "../../wiki/pages-pre-import");
-
 function yamlValue(value: string): string {
   // Quote if value contains YAML-special characters
   if (/[:#{}[\],&*?|>!%@`]/.test(value) || value.startsWith('"') || value.startsWith("'")) {
@@ -72,7 +69,11 @@ function resolveSlug(slug: string, taken: Set<string>): string {
   return `${slug}-${i}`;
 }
 
-function apply(reduceDir: string): void {
+export function apply(
+  reduceDir: string,
+  wikiDir: string = join(process.cwd(), "wiki/pages"),
+  backupDir: string = join(process.cwd(), "wiki/pages-pre-import"),
+): void {
   // Read all reduce outputs
   const jsonFiles = readdirSync(reduceDir).filter(
     (f) => f.endsWith(".json") && !f.startsWith("group-") && !f.startsWith("merge-")
@@ -90,8 +91,8 @@ function apply(reduceDir: string): void {
 
   // Read existing page slugs
   const existingSlugs = new Set<string>();
-  if (existsSync(WIKI_DIR)) {
-    for (const f of readdirSync(WIKI_DIR)) {
+  if (existsSync(wikiDir)) {
+    for (const f of readdirSync(wikiDir)) {
       if (f.endsWith(".md")) existingSlugs.add(f.replace(".md", ""));
     }
   }
@@ -118,26 +119,26 @@ function apply(reduceDir: string): void {
   }
 
   // Step 1: Back up existing wiki/pages
-  if (existsSync(BACKUP_DIR)) {
+  if (existsSync(backupDir)) {
     console.error(
       "wiki/pages-pre-import already exists. Remove it first or use --revert."
     );
     process.exit(1);
   }
 
-  if (existsSync(WIKI_DIR)) {
-    renameSync(WIKI_DIR, BACKUP_DIR);
+  if (existsSync(wikiDir)) {
+    renameSync(wikiDir, backupDir);
     console.log("Backed up wiki/pages → wiki/pages-pre-import");
   }
 
   // Step 2: Create new wiki/pages with existing + new pages
-  mkdirSync(WIKI_DIR, { recursive: true });
+  mkdirSync(wikiDir, { recursive: true });
 
   // Copy existing pages from backup
-  if (existsSync(BACKUP_DIR)) {
-    for (const f of readdirSync(BACKUP_DIR)) {
+  if (existsSync(backupDir)) {
+    for (const f of readdirSync(backupDir)) {
       if (f.endsWith(".md")) {
-        copyFileSync(join(BACKUP_DIR, f), join(WIKI_DIR, f));
+        copyFileSync(join(backupDir, f), join(wikiDir, f));
       }
     }
     console.log(`Copied ${existingSlugs.size} existing pages from backup`);
@@ -145,7 +146,7 @@ function apply(reduceDir: string): void {
 
   // Write new and merged pages (overwriting existing for merges)
   for (const [slug, content] of pageFiles) {
-    writeFileSync(join(WIKI_DIR, `${slug}.md`), content);
+    writeFileSync(join(wikiDir, `${slug}.md`), content);
   }
 
   // Summary
@@ -171,30 +172,35 @@ function apply(reduceDir: string): void {
   );
 }
 
-function revert(): void {
-  if (!existsSync(BACKUP_DIR)) {
+export function revert(
+  wikiDir: string = join(process.cwd(), "wiki/pages"),
+  backupDir: string = join(process.cwd(), "wiki/pages-pre-import"),
+): void {
+  if (!existsSync(backupDir)) {
     console.error("No backup found at wiki/pages-pre-import/");
     process.exit(1);
   }
 
-  if (existsSync(WIKI_DIR)) {
+  if (existsSync(wikiDir)) {
     // Remove current wiki/pages
-    const files = readdirSync(WIKI_DIR);
+    const files = readdirSync(wikiDir);
     for (const f of files) {
-      Bun.spawnSync(["rm", join(WIKI_DIR, f)]);
+      Bun.spawnSync(["rm", join(wikiDir, f)]);
     }
-    Bun.spawnSync(["rmdir", WIKI_DIR]);
+    Bun.spawnSync(["rmdir", wikiDir]);
   }
 
-  renameSync(BACKUP_DIR, WIKI_DIR);
+  renameSync(backupDir, wikiDir);
   console.log("Reverted: wiki/pages-pre-import → wiki/pages");
 }
 
 if (import.meta.main) {
   const args = process.argv.slice(2);
+  const wikiDir = join(process.cwd(), "wiki/pages");
+  const backupDir = join(process.cwd(), "wiki/pages-pre-import");
 
   if (args.includes("--revert")) {
-    revert();
+    revert(wikiDir, backupDir);
   } else {
     const reduceDir = args.find((a) => !a.startsWith("--"));
     if (!reduceDir) {
@@ -203,6 +209,6 @@ if (import.meta.main) {
       );
       process.exit(1);
     }
-    apply(reduceDir);
+    apply(reduceDir, wikiDir, backupDir);
   }
 }
