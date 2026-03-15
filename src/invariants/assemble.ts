@@ -3,14 +3,15 @@ import { join } from "path";
 import type { ComparisonReport } from "./types";
 import { renderInvariantPage } from "./render";
 
-const INVARIANTS_DIR = join(import.meta.dir, "../../wiki/invariants");
-
-export function assembleInvariantPages(report: ComparisonReport): void {
-  mkdirSync(INVARIANTS_DIR, { recursive: true });
+export function assembleInvariantPages(
+  report: ComparisonReport,
+  invariantsDir: string = join(process.cwd(), "wiki/invariants"),
+): void {
+  mkdirSync(invariantsDir, { recursive: true });
 
   // Write report.json
   writeFileSync(
-    join(INVARIANTS_DIR, "report.json"),
+    join(invariantsDir, "report.json"),
     JSON.stringify(report, null, 2)
   );
 
@@ -25,7 +26,7 @@ export function assembleInvariantPages(report: ComparisonReport): void {
     );
 
     const page = renderInvariantPage(group.name, group.invariants, groupUnspecified);
-    writeFileSync(join(INVARIANTS_DIR, `${group.name}.md`), page);
+    writeFileSync(join(invariantsDir, `${group.name}.md`), page);
   }
 
   // Summary

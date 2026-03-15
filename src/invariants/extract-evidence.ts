@@ -2,12 +2,9 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 
 import { join, relative } from "path";
 import type { InvariantTree } from "./types";
 
-const SRC_DIR = join(import.meta.dir, "../../src");
-const INVARIANTS_DIR = join(import.meta.dir, "../../wiki/invariants");
-
 // Maps invariant group names to source directories.
 // Groups not listed here use convention: group name matches src/ subdirectory.
-const GROUP_DIR_MAP: Record<string, string[]> = {
+export const DEFAULT_GROUP_DIR_MAP: Record<string, string[]> = {
   "agent-pipeline": ["agents", "watcher"],
   "agent-integration": ["agents", "watcher"],
   "system-architecture": ["server", "wiki", "agents", "watcher", "search"],
@@ -57,7 +54,11 @@ function collectTestFiles(dir: string): string[] {
     .map((f) => join(testDir, f));
 }
 
-export function prepareEvidenceInputs(tree: InvariantTree): EvidenceExtractionInput[] {
+export function prepareEvidenceInputs(
+  tree: InvariantTree,
+  srcDir: string = join(process.cwd(), "src"),
+  groupDirMap: Record<string, string[]> = DEFAULT_GROUP_DIR_MAP,
+): EvidenceExtractionInput[] {
   // Group invariants by top-level segment
   const groups = new Map<string, { id: string; description: string }[]>();
   for (const inv of tree.invariants) {
@@ -69,18 +70,18 @@ export function prepareEvidenceInputs(tree: InvariantTree): EvidenceExtractionIn
   const inputs: EvidenceExtractionInput[] = [];
 
   for (const [group, invariants] of groups) {
-    const dirs = GROUP_DIR_MAP[group] || [group];
+    const dirs = groupDirMap[group] || [group];
     const sourceFilePaths = new Set<string>();
     const testFilePaths = new Set<string>();
 
     for (const d of dirs) {
-      const fullDir = d === "." ? SRC_DIR : join(SRC_DIR, d);
+      const fullDir = d === "." ? srcDir : join(srcDir, d);
       for (const f of collectFiles(fullDir)) sourceFilePaths.add(f);
       for (const f of collectTestFiles(fullDir)) testFilePaths.add(f);
     }
 
     const readFile = (p: string) => ({
-      path: relative(join(SRC_DIR, ".."), p),
+      path: relative(join(srcDir, ".."), p),
       content: readFileSync(p, "utf-8"),
     });
 
@@ -96,8 +97,8 @@ export function prepareEvidenceInputs(tree: InvariantTree): EvidenceExtractionIn
 }
 
 if (import.meta.main) {
-  const treeFile = process.argv[2] || join(INVARIANTS_DIR, "tree.json");
-  const outDir = process.argv[3] || join(INVARIANTS_DIR, "staging");
+  const treeFile = process.argv[2] || join(process.cwd(), "wiki/invariants/tree.json");
+  const outDir = process.argv[3] || join(process.cwd(), "wiki/invariants/staging");
 
   const tree: InvariantTree = JSON.parse(readFileSync(treeFile, "utf-8"));
   const inputs = prepareEvidenceInputs(tree);
