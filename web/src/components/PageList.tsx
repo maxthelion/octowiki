@@ -130,8 +130,11 @@ export function PageList() {
     const page = pages.find(p => p.slug === activeSlug);
     if (!page) return ids;
 
-    // Expand the category
-    ids.add(`cat:${page.category || "uncategorised"}`);
+    // Expand the category (use same resolution as grouping logic)
+    const resolvedCategory = page.category && categories?.includes(page.category)
+      ? page.category
+      : "uncategorised";
+    ids.add(`cat:${resolvedCategory}`);
 
     // Walk up the parent chain
     const bySlug = new Map(pages.map(p => [p.slug, p]));
@@ -144,7 +147,7 @@ export function PageList() {
     }
 
     return ids;
-  }, [pages, activeSlug]);
+  }, [pages, activeSlug, categories]);
 
   return (
     <nav className="sidebar">
