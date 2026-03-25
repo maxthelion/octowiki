@@ -140,5 +140,6 @@ This taxonomy is consulted by:
 
 - [[bootstrapping]] — to classify source files into wiki pages during batch population
 - [[skills]] — the `/octowiki:add-page` skill reads this page to pick the right category
+- [[sidebar-tree-navigation]] — the frontend sidebar fetches categories dynamically via `GET /api/taxonomy`, so adding or removing a category here automatically updates the navigation. Category order in the sidebar follows the order of headings in this file.
 
 See [[content-guidelines]] for rules on avoiding content duplication across pages.
