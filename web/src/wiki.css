@@ -36,6 +36,7 @@
 .tree-category-empty { cursor: default; color: #bbb; }
 .tree-category-empty:hover { color: #bbb; }
 .tree-arrow { width: 10px; font-size: 8px; flex-shrink: 0; text-align: center; }
+button.tree-arrow { background: none; border: none; padding: 0; cursor: pointer; }
 .tree-count { margin-left: auto; font-weight: 400; color: #aaa; font-size: 11px; }
 .tree-pages { list-style: none; padding-left: 14px; margin: 0 0 4px; }
 .tree-pages li { margin-bottom: 1px; }
