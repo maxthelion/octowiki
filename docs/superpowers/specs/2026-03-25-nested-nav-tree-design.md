@@ -38,18 +38,20 @@ No changes to slug format, file locations, or wikilinks. Fully backward-compatib
 
 No new endpoints or breaking changes.
 
-- `readPage` in `src/wiki/pages.ts` already parses all frontmatter fields via `parseFrontmatter`. The new `parent` and `overview` fields are passed through the same way as existing fields like `tags` and `summary`.
-- The `GET /api/pages` response automatically includes the new fields since it returns the full `WikiPage` object (minus content).
-- `PageFrontmatter` and `WikiPage` interfaces in `src/types.ts` get the two new optional fields.
+- Add `parent?: string` and `overview?: boolean` to both `PageFrontmatter` and `WikiPage` in `src/types.ts`.
+- Update `readPage` in `src/wiki/pages.ts` to explicitly include `parent: data.parent` and `overview: data.overview ?? false` in the returned object (it cherry-picks named fields, not a spread).
+- Update the `PageSummary` interfaces in both `web/src/hooks/usePages.ts` and `web/src/components/PageList.tsx` to include `parent?: string` and `overview?: boolean`.
+- The `GET /api/pages` endpoint needs no route changes — the serialisation in `pagesRouter` already spreads `{ content, ...rest }`, so the new fields flow through once `readPage` includes them.
 
 ## Frontend: Dynamic Categories
 
 Replace the hardcoded `CATEGORIES` array in `PageList.tsx`:
 
+- **Fix the taxonomy route and parser:** The current `taxonomyRouter` reads from `wiki/meta/taxonomy.md` (which doesn't exist), and `loadTaxonomy()` expects `- item` list format. The actual taxonomy lives in `wiki/pages/category-taxonomy.md` using `### heading` format. Fix by: updating the route to read from `wiki/pages/category-taxonomy.md`, and updating `loadTaxonomy()` to parse `### heading` lines under `## Categories` (in addition to or instead of `- ` list items).
 - Add a `useTaxonomy()` hook in `usePages.ts` that fetches `GET /api/taxonomy`.
 - `PageList` uses the returned categories array instead of the `CATEGORIES` constant.
 - Remove the `CATEGORIES` const entirely.
-- Category order: as defined in the taxonomy file, with "uncategorised" appended.
+- Category order: as defined in the taxonomy file (deliberate change from the current alphabetical sort documented in `sidebar-tree-navigation.md`), with "uncategorised" appended.
 - Loading/error: same loading state as pages.
 
 This means adding or removing categories requires only editing `category-taxonomy.md` — no frontend code changes.
@@ -72,8 +74,8 @@ The `PageList` component's grouping logic changes from flat to hierarchical:
 
 ### Collapse/expand
 
-- Extend the existing `collapsed: Set<string>` to track both category names and page slugs. These won't collide (categories are single lowercase words; slugs contain hyphens).
-- Any node with children gets a toggle arrow (▶/▼).
+- Extend the existing `collapsed: Set<string>` to track both category names and page slugs. Use a `cat:` prefix for category keys (e.g., `cat:architecture`) to avoid collisions — page slugs like `testing` or `meta` could otherwise match category names.
+- Any node with children gets a toggle arrow (▶/▼). Page toggle arrows should be `<button>` elements for keyboard accessibility.
 - Clicking toggles that node's children visibility.
 
 ### Auto-expand
@@ -86,6 +88,10 @@ The `PageList` component's grouping logic changes from flat to hierarchical:
 - A recursive `TreeNode` component renders a page, its toggle arrow (if it has children), and its children list.
 - Each nesting level gets additional left padding (building on the existing 14px pattern).
 - The category level renders as before but delegates its page list to `TreeNode`.
+
+### Category count badge
+
+The existing count badge next to each category header shows the total number of pages in that category (including all nested descendants), not just direct children.
 
 ### Visual result
 
@@ -106,7 +112,7 @@ The `PageList` component's grouping logic changes from flat to hierarchical:
 
 - `parent` must reference a page that exists and shares the same `category`.
 - If validation fails, the page silently falls back to top-level (no error, just a graceful degradation).
-- Circular parent references are handled by the tree builder: if a page is encountered twice during traversal, it's placed at the top level.
+- Circular parent references: before building the tree, detect cycles by walking the parent chain for each page. If a page's ancestor chain leads back to itself, break the cycle by treating the page that closes the loop as a top-level page.
 
 ## Wiki Updates
 
