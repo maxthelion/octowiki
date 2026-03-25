@@ -14,6 +14,7 @@ export function loadTaxonomy(filePath: string): Taxonomy {
   const categories: string[] = [];
   const tags: Record<string, string> = {};
   let section: "categories" | "tags" | null = null;
+  let useHeadingFormat = false;
 
   for (const line of raw.split("\n")) {
     if (line.startsWith("## Categories")) {
@@ -24,10 +25,11 @@ export function loadTaxonomy(filePath: string): Taxonomy {
     } else if (section === "categories") {
       // Parse ### heading format (from category-taxonomy.md)
       if (line.startsWith("### ")) {
+        useHeadingFormat = true;
         categories.push(line.slice(4).trim());
       }
-      // Parse - item format (legacy)
-      else if (line.startsWith("- ")) {
+      // Parse - item format (legacy) — only if no ### headings found
+      else if (line.startsWith("- ") && !useHeadingFormat) {
         categories.push(line.slice(2).split(" — ")[0].trim().replace(/`/g, ""));
       }
     } else if (line.startsWith("- ") && section === "tags") {
