@@ -63,6 +63,48 @@ describe("writePage", () => {
   });
 });
 
+describe("parent and overview fields", () => {
+  test("reads a page with parent and overview fields", () => {
+    writeFileSync(
+      join(PAGES_DIR, "child-page.md"),
+      `---
+title: Child Page
+category: architecture
+parent: parent-page
+overview: true
+tags: []
+summary: ""
+last-modified-by: user
+---
+
+## Content`
+    );
+    const page = readPage(PAGES_DIR, "child-page");
+    expect(page).not.toBeNull();
+    expect(page!.parent).toBe("parent-page");
+    expect(page!.overview).toBe(true);
+  });
+
+  test("page without parent/overview defaults correctly", () => {
+    writeFileSync(
+      join(PAGES_DIR, "plain-page.md"),
+      `---
+title: Plain Page
+category: meta
+tags: []
+summary: ""
+last-modified-by: user
+---
+
+## Content`
+    );
+    const page = readPage(PAGES_DIR, "plain-page");
+    expect(page).not.toBeNull();
+    expect(page!.parent).toBeUndefined();
+    expect(page!.overview).toBe(false);
+  });
+});
+
 describe("listPages", () => {
   test("lists all pages with summaries", () => {
     writePage(PAGES_DIR, "page-a", {

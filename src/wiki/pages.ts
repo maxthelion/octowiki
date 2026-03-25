@@ -19,6 +19,8 @@ export function readPage(pagesDir: string, slug: string): WikiPage | null {
     lastModifiedBy: data["last-modified-by"],
     lastSummarised: data["last-summarised"],
     content,
+    parent: data.parent,
+    overview: data.overview ?? false,
   };
 }
 

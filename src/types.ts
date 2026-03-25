@@ -7,6 +7,8 @@ export interface WikiPage {
   lastModifiedBy: "user" | "agent";
   lastSummarised?: string;
   content: string;
+  parent?: string;
+  overview?: boolean;
 }
 
 export interface PageFrontmatter {
@@ -16,6 +18,8 @@ export interface PageFrontmatter {
   summary: string;
   "last-summarised"?: string;
   "last-modified-by": "user" | "agent";
+  parent?: string;
+  overview?: boolean;
 }
 
 export interface ChangeSummary {
