@@ -73,3 +73,38 @@ describe("POST /api/pages", () => {
     expect(data.slug).toBeTruthy();
   });
 });
+
+describe("GET /api/pages with parent/overview", () => {
+  test("returns parent and overview in page summaries", async () => {
+    writeFileSync(
+      join(TEST_WIKI, "pages/child-page.md"),
+      `---
+title: Child Page
+category: architecture
+parent: test-page
+overview: true
+tags: []
+summary: ""
+last-modified-by: user
+---
+
+## Content`
+    );
+    const app = createApp({ wikiDir: TEST_WIKI });
+    const res = await app.request("/api/pages");
+    const data = await res.json();
+    const child = data.find((p: any) => p.slug === "child-page");
+    expect(child).toBeDefined();
+    expect(child.parent).toBe("test-page");
+    expect(child.overview).toBe(true);
+  });
+
+  test("omits parent for pages without one", async () => {
+    const app = createApp({ wikiDir: TEST_WIKI });
+    const res = await app.request("/api/pages");
+    const data = await res.json();
+    const page = data.find((p: any) => p.slug === "test-page");
+    expect(page.parent).toBeUndefined();
+    expect(page.overview).toBe(false);
+  });
+});
