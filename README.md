@@ -41,7 +41,7 @@ octowiki/
 │   └── src/
 │       ├── components/     ← PageView, ChatBox, Feed, Inbox, etc.
 │       ├── hooks/          ← React Query + SSE hooks
-│       └── lib/            ← Markdown renderer with wikilink support
+│       └── lib/            ← Markdown renderer, tree builder, utilities
 └── wiki/                   ← Your wiki content (created on first run)
     ├── pages/              ← Markdown pages
     ├── meta/               ← taxonomy.md, inbox.md
@@ -81,6 +81,8 @@ Create markdown files in `wiki/pages/` with YAML frontmatter:
 ---
 title: My Page
 category: architecture
+parent: system-architecture
+overview: true
 tags: [api, design]
 summary: ""
 last-modified-by: user
@@ -88,6 +90,13 @@ last-modified-by: user
 
 Your content here. Link to other pages with [[page-slug]] syntax.
 ```
+
+- **`parent`** (optional): slug of a parent page in the same category. Creates nested hierarchy in the sidebar.
+- **`overview`** (optional): if `true`, the page sorts first at its level in the sidebar tree.
+
+### Sidebar Navigation
+
+Pages are grouped by category in a collapsible tree. Categories are loaded dynamically from `wiki/pages/category-taxonomy.md`. Pages can nest under other pages using the `parent` frontmatter field, creating a multi-level hierarchy. Each node with children can be independently collapsed/expanded, and navigating to a nested page auto-expands its ancestor chain.
 
 ### Wikilinks
 
@@ -132,4 +141,4 @@ If `qmd` is installed, OctoWiki provides BM25 and vector search via `GET /api/se
 bun test
 ```
 
-34 tests covering frontmatter parsing, wikilink parsing, page CRUD, backlinks, lock management, qmd command building, API routes, and debounce logic.
+83 tests covering frontmatter parsing, wikilink parsing, page CRUD, backlinks, lock management, qmd command building, API routes, taxonomy parsing, tree building, and debounce logic.
