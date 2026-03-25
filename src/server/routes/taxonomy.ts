@@ -7,7 +7,7 @@ export function taxonomyRouter(ctx: AppContext): Hono {
   const router = new Hono();
 
   router.get("/taxonomy", (c) => {
-    const taxonomy = loadTaxonomy(join(ctx.wikiDir, "meta/taxonomy.md"));
+    const taxonomy = loadTaxonomy(join(ctx.wikiDir, "pages/category-taxonomy.md"));
     return c.json(taxonomy);
   });
 
