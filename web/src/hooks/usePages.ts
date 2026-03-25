@@ -7,6 +7,8 @@ interface PageSummary {
   tags: string[];
   summary: string;
   lastModifiedBy: string;
+  parent?: string;
+  overview?: boolean;
 }
 
 interface WikiPage extends PageSummary {
@@ -97,6 +99,18 @@ export function useRejectPlan() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inbox"] });
     },
+  });
+}
+
+interface Taxonomy {
+  categories: string[];
+  tags: Record<string, string>;
+}
+
+export function useTaxonomy() {
+  return useQuery<Taxonomy>({
+    queryKey: ["taxonomy"],
+    queryFn: () => fetchJson("/api/taxonomy"),
   });
 }
 
