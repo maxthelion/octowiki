@@ -1,6 +1,7 @@
 ---
 title: Bun Runtime
 category: architecture
+parent: system-architecture
 tags: [bun, runtime, tooling, api, frontend]
 summary: "Bun is the sole JavaScript runtime, bundler, and package manager for this project, replacing Node.js and its ecosystem of third-party tools."
 last-modified-by: agent

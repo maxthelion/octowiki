@@ -1,6 +1,7 @@
 ---
 title: "Batch Import: Discovery Phase"
 category: pipeline
+parent: batch-import-pipeline
 tags: [batch-import, discovery, manifest, file-scanning]
 summary: "The discovery phase scans a repository for markdown files and writes a manifest JSON to a temp directory, providing the input for all subsequent batch import phases."
 last-modified-by: agent

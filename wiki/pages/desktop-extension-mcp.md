@@ -1,6 +1,7 @@
 ---
 title: Desktop Extension (MCP) Interface
 category: architecture
+parent: system-architecture
 tags: [mcp, integration, desktop-extension, tools]
 summary: The wiki system is packaged as a Claude Desktop Extension (.mcpb) that exposes a set of MCP tools to Claude and manages the local processes required to serve the wiki.
 last-modified-by: agent

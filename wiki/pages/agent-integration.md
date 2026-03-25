@@ -1,6 +1,7 @@
 ---
 title: Agent Integration
 category: architecture
+parent: system-architecture
 tags: [agents, pipeline, claude, orchestration, reactive-system]
 summary: "OctoWiki integrates four specialised Claude agents — Haiku Watcher, Planning, Execution, and Chat-in-Page — coordinated through a staged reactive pipeline with explicit human approval gates."
 last-modified-by: agent

@@ -1,6 +1,7 @@
 ---
 title: OctoWiki Overview
 category: functionality
+overview: true
 tags: [octowiki, wiki, ai, getting-started, architecture]
 summary: "OctoWiki is an AI-powered wiki for codebases that combines real-time file watching, a chat interface, agent-driven planning, and semantic search into a single Bun process."
 last-modified-by: agent

@@ -1,6 +1,7 @@
 ---
 title: System Architecture
 category: architecture
+overview: true
 tags: [architecture, system-design, components, backend, frontend]
 summary: "OctoWiki runs as a single Bun process composed of four integrated subsystems: an HTTP server, a file watcher, an agent orchestrator, and a wiki core — all sharing a common TypeScript module hierarchy."
 last-modified-by: agent
