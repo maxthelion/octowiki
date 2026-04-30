@@ -4,7 +4,7 @@ import { homedir } from "os";
 import { detectSkills } from "./setup";
 
 function templatesDir(): string {
-  return join(import.meta.dir, "templates");
+  return join(import.meta.dir, "..", "..", "bundle", "templates");
 }
 
 export function initWiki(projectRoot: string): void {

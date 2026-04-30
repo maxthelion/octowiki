@@ -5,7 +5,7 @@ import { homedir } from "os";
 const SKILL_NAMES = ["octowiki-add-page", "octowiki-batch-import", "octowiki-invariants"];
 
 function bundledSkillsDir(): string {
-  return join(import.meta.dir, "../../.claude/skills");
+  return join(import.meta.dir, "..", "..", "bundle", "skills");
 }
 
 export function detectSkills(globalDir: string, localDir: string): "global" | "local" | null {

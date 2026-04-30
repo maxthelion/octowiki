@@ -1,0 +1,29 @@
+# octowiki install manifest.
+#
+# Describes where each canonical file lands in a target project. Consumed by
+# the meta hub `bundle` CLI and by octowiki's own `setup` / `init` commands,
+# both of which now read from this directory.
+#
+# This bundle does NOT install global Claude Code skills (`~/.claude/skills/`)
+# or modify CLAUDE.md. Those bootstrap concerns remain in `octowiki setup` /
+# `octowiki init`. The bundle handles only the per-project static files.
+name: octowiki
+version: 0.1.0
+description: >
+  Reusable wiki bundle: octowiki-{add-page, batch-import, invariants} skill
+  prompts plus the canonical wiki/pages/category-taxonomy.md. Install into
+  any project that wants Claude-Code-driven wiki authoring with a
+  consistent category model.
+
+requires:
+  - .git/
+
+files:
+  - source: skills/octowiki-add-page/SKILL.md
+    target: .claude/skills/octowiki-add-page/SKILL.md
+  - source: skills/octowiki-batch-import/SKILL.md
+    target: .claude/skills/octowiki-batch-import/SKILL.md
+  - source: skills/octowiki-invariants/SKILL.md
+    target: .claude/skills/octowiki-invariants/SKILL.md
+  - source: templates/category-taxonomy.md
+    target: wiki/pages/category-taxonomy.md

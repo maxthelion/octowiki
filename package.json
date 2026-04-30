@@ -9,7 +9,7 @@
   "files": [
     "cli.ts",
     "src/",
-    ".claude/skills/",
+    "bundle/",
     "dist/web/"
   ],
   "scripts": {
